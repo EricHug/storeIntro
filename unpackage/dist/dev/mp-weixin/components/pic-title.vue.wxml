@@ -1,0 +1,1 @@
+<template name="7adad43e"><view class="_view 7adad43e show_item"><view class="_view 7adad43e pic"><image mode="aspectFit" src="{{data.src}}" class="_image 7adad43e"></image></view><view class="_view 7adad43e title"><text class="_text 7adad43e">{{data.title}}</text></view></view></template>
