@@ -19,7 +19,7 @@
 				let info = uni.getStorageSync('info')
 				console.log('storage info:',info)
 				if(info){
-					this.html = info.about
+					this.html = info.job
 				}
 			},
 		}

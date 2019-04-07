@@ -2,7 +2,7 @@
 	<view class="uni-tab-bar">
 		<scroll-view id="tab-bar" class="uni-swiper-tab" scroll-x :scroll-left="scrollLeft">
 			<view v-for="(tab,index) in tabBars" :key="tab.id" :class="['swiper-tab-list',tabIndex==index ? 'active' : '']" :id="tab.id"
-			 :data-current="index" @click="tapTab(index)">{{tab.name}}</view>
+			 :data-current="index" @click="tapTab(index)">{{tab.categoryName}}</view>
 		</scroll-view>
 		<swiper :current="tabIndex" class="swiper-box" duration="300" @change="changeTab">
 			<swiper-item v-for="(tab,index1) in newsitems" :key="index1">
@@ -20,12 +20,13 @@
 	</view>
 </template>
 <script>
-	import mediaList from '@/components/tab-nvue/mediaList.vue';
+	// import mediaList from '@/components/tab-nvue/mediaList.vue';
 	import picTitle from '@/components/pic-title.vue';
 	import uniLoadMore from '@/components/uni-load-more.vue';
+	import api from '../../common/api/index.js'
 	export default {
 		components: {
-			mediaList,
+			// mediaList,
 			picTitle,
 			uniLoadMore
 		},
@@ -40,78 +41,85 @@
 				isClickChange: false,
 				tabIndex: 0,
 				newsitems: [],
-				data0: {
-					src:"http://temp.im/100x100",
-					title:"舒适风格"
-				},
-				data1: {
-					"src": "https://img-cdn-qiniu.dcloud.net.cn/uniapp/images/shuijiao.jpg?imageView2/3/w/200/h/100/q/90",
-					title:"护眼风格"
-				},
-				data2: {
-					"src": "https://img-cdn-qiniu.dcloud.net.cn/uniapp/images/muwu.jpg?imageView2/3/w/200/h/100/q/90",
-					title:"大气风格"
-				},
-				data3: {
-					"src": "https://img-cdn-qiniu.dcloud.net.cn/uniapp/images/muwu.jpg?imageView2/3/w/200/h/100/q/90",
-					title:"稳重风格"
-				},
-				data4: {
-					"src": "https://img-cdn-qiniu.dcloud.net.cn/uniapp/images/muwu.jpg?imageView2/3/w/200/h/100/q/90",
-					title:"简约风格"
-				},
-				tabBars: [{
-					name: '全部',
-					id: 'guanzhu'
-				}, {
-					name: '中式系列',
-					id: 'zhongshi'
-				}, {
-					name: '美式系列',
-					id: 'meishi'
-				}, {
-					name: '现代系列',
-					id: 'xiandai'
-				}, {
-					name: '古风系列',
-					id: 'gufeng'
-				}]
+				tabBars: [],
+				pageSize:10
+			}
+		},
+		computed:{
+			categoryId(){
+				let tabIndex = this.tabIndex
+				let tabBars = this.tabBars
+				if(tabIndex == null || tabBars.length==0){return ""}
+				return tabBars[tabIndex]["id"]
+			}
+		},
+		watch:{
+			tabIndex(v){
+				if(!this.newsitems[v].pageNum){
+					this.queryProduct(1)
+				}
 			}
 		},
 		onLoad: function() {
-			this.newsitems = this.randomfn()
+			// this.newsitems = this.randomfn()
+			this.queryCategory()
+			this.queryProduct(1)
 		},
 		methods: {
-			goDetail(e) {
-				uni.navigateTo({
-					url: '/pages/template/tabbar/detail/detail?data=' + e.title
-				})
+			queryCategory:async function(){
+				let res = await api.getCategories();
+				console.log(res)
+				if (res.data.code === 200) {
+				  this.tabBars = res.data.data
+				  this.tabBars.unshift({
+					  id: 0,
+					  categoryName: '全部'
+				  })
+				  for(let i =0;i<this.tabBars.length;i++){
+					  this.newsitems.push({
+						  loadingType: 0,
+						  data:[]
+					  })
+				  }
+				}
 			},
-			close(index1, index2) {
-				uni.showModal({
-					content: '是否删除本条信息？',
-					success: (res) => {
-						if (res.confirm) {
-							this.newsitems[index1].data.splice(index2, 1);
-						}
-					}
+			queryProduct:async function(pageNum = ""){
+				let res = await api.getProducts({
+					pageNum,
+					pageSize: this.pageSize,
+					type: this.categoryId?this.categoryId:""
+				});
+				console.log(res)
+				if (res.data.code === 200) {
+					let products = res.data.data
+					this.handleProducts(products,res.data)
+				  // this.tabBars = res.data.data
+				}
+			},
+			handleProducts(arr,data){
+				let tabIndex = this.tabIndex
+				let newsitems = this.newsitems
+				let {pageNum,pages} = data
+				console.log(tabIndex,111,newsitems[tabIndex],arr)
+				this.$set(this.newsitems,tabIndex,{
+					loadingType: pageNum == pages ? 2 : 0,
+					pageNum:pageNum,
+					data: arr
 				})
 			},
 			loadMore(e) {
+				if(this.newsitems[e].loadingType == 2)return
 				this.newsitems[e].loadingType = 1;
 				setTimeout(() => {
 					this.addData(e);
-				}, 1200);
+				}, 300);
 			},
 			addData(e) {
 				if (this.newsitems[e].data.length > 30) {
 					this.newsitems[e].loadingType = 2;
 					return;
 				}
-				for (let i = 1; i <= 10; i++) {
-					this.newsitems[e].data.push(this['data' + Math.floor(Math.random() * 5)]);
-				}
-				this.newsitems[e].loadingType = 1;
+				this.queryProduct(this.newsitems[e].pageNum + 1)
 			},
 			async changeTab(e) {
 				let index = e.detail.current;
@@ -125,6 +133,7 @@
 				let width = 0;
 				for (let i = 0; i < index; i++) {
 					let result = await this.getElSize(this.tabBars[i].id);
+					console.log('result',result)
 					width += result.width;
 				}
 				let winWidth = uni.getSystemInfoSync().windowWidth,
@@ -173,7 +182,22 @@
 					ary.push(aryItem);
 				}
 				return ary;
-			}
+			},
+			goDetail(e) {
+				uni.navigateTo({
+					url: '/pages/template/tabbar/detail/detail?data=' + e.title
+				})
+			},
+			close(index1, index2) {
+				uni.showModal({
+					content: '是否删除本条信息？',
+					success: (res) => {
+						if (res.confirm) {
+							this.newsitems[index1].data.splice(index2, 1);
+						}
+					}
+				})
+			},
 		}
 	}
 </script>

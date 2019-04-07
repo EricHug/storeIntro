@@ -1,1 +1,1 @@
-<template name="124a55a3"><view class="_view 124a55a3 content"><image src="{{pic}}" class="_image 124a55a3"></image></view></template>
+<template name="3b30acf4"><view class="_view 3b30acf4 content"><rich-text nodes="{{html}}" class="_rich-text 3b30acf4"></rich-text></view></template>

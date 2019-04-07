@@ -23,6 +23,12 @@
 			"style": {
 				"navigationBarTitleText": "关于我们"
 			}
+		},
+		{
+			"path": "pages/job/index",
+			"style": {
+				"navigationBarTitleText": "加入我们"
+			}
 		}
 	],
 	"globalStyle": {

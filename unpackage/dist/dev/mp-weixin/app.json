@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/product/index",
     "pages/contact/index",
-    "pages/about/index"
+    "pages/about/index",
+    "pages/job/index"
   ],
   "subPackages": [],
   "window": {

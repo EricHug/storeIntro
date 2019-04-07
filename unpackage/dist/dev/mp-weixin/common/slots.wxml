@@ -1,1 +1,3 @@
+<import src="/components/pic-title.vue.wxml" />
+<import src="/components/uni-load-more.vue.wxml" />
 

@@ -12,6 +12,7 @@
 </template>
 
 <script>
+	import api from '../../common/api/index.js'
 	export default {
 		data() {
 			return {
@@ -39,9 +40,19 @@
 				]
 			}
 		},
-		onLoad() {
+		mounted() {
+			this.queryData()
 		},
 		methods: {
+			queryData:async function(){
+				let res = await api.getHomes();
+				console.log(res)
+				if (res.data.code === 200) {
+				  let info = res.data.data
+				  console.log(info)
+				  uni.setStorageSync('info', info)
+				}
+			},
 			jumpTo(url) {
 				uni.navigateTo({
 					url

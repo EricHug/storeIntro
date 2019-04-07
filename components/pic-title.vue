@@ -1,10 +1,10 @@
 <template>
 	<view class="show_item">
 		<view class="pic">
-			<image mode="aspectFit" :src="data.src"></image>
+			<image mode="aspectFit" :src="data.headUrl"></image>
 		</view>
 		<view class="title">
-			<text>{{data.title}}</text>
+			<text>{{data.name}}</text>
 		</view>
 	</view>
 </template>
@@ -17,8 +17,8 @@
 				type: Object,
 				default () {
 					return {
-						src:"http://temp.im/100x100",
-						title:""
+						headUrl:"http://temp.im/100x100",
+						name:""
 					};
 				}
 			}

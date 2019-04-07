@@ -20,6 +20,7 @@
 </template>
 
 <script>
+	import api from '../../common/api/index.js'
 	export default {
 		data() {
 			return {
@@ -32,14 +33,16 @@
 					iconPath: '../../static/location.png',
 					width: 30,
 					height: 30,
-					title:"荣兴木业",
-					label:{
+					title: "荣兴木业",
+					label: {
 						content: "荣兴木业",
 						fontSize: 12
 					}
 				}],
-				name: "荣兴木业",
-				address: "广东省揭阳普宁市燎原街道普师高级中学西300米",
+				name: null,
+				address: null,
+				homephone:null,
+				telephone:null,
 			}
 		},
 		computed: {
@@ -56,19 +59,43 @@
 					},
 					{
 						tag: "座机",
-						name: "(0663)2285847",
+						name: self.homephone,
 						isCall: true
 					},
 					{
 						tag: "手机",
-						name: "13531994925",
+						name: self.telephone,
 						isCall: true
 					}
 				]
 			}
 		},
-		mounted() {},
+		mounted() {
+			this.queryData()
+		},
 		methods: {
+			queryData: async function() {
+				let info = uni.getStorageSync('info')
+				console.log('storage info:',info)
+				if(info){
+					let {
+						name,
+						address,
+						homephone,
+						telephone,
+						about,
+						job,
+						id
+					} = info;
+					this.name = name
+					this.address = address
+					this.homephone = homephone
+					this.telephone = telephone
+					this.content = about
+					this.content1 = job
+					this.id = id
+				}
+			},
 			openMap(latitude, longitude) {
 				let self = this
 				uni.openLocation({
@@ -83,13 +110,13 @@
 			},
 			call(obj) {
 				let self = this
-				if (obj.isCall){
+				if (obj.isCall) {
 					uni.makePhoneCall({
 						phoneNumber: obj.name
 					});
 				}
-				if (obj.isAddress){
-					this.openMap(self.latitude,self.longitude)
+				if (obj.isAddress) {
+					this.openMap(self.latitude, self.longitude)
 				}
 			}
 		}
@@ -116,7 +143,7 @@
 			width: 50upx;
 			height: 50upx;
 			align-self: flex-start;
-			margin-right:10upx;
+			margin-right: 10upx;
 		}
 
 		view {
